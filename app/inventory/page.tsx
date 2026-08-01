@@ -9,6 +9,7 @@ import InventoryStats from "@/components/inventory/InventoryStats";
 import InventoryTable from "@/components/inventory/InventoryTable";
 import InventoryToolbar from "@/components/inventory/InventoryToolbar";
 import EditProductDialog from "@/components/inventory/EditProductDialog";
+import DeleteProductDialog from "@/components/inventory/DeleteProductDialog";
 
 export default function InventoryPage() {
   const [search, setSearch] = useState("");
@@ -17,10 +18,18 @@ export default function InventoryPage() {
 
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
+  // Edit
   const [editingProduct, setEditingProduct] =
     useState<Product | null>(null);
 
   const [isEditOpen, setIsEditOpen] = useState(false);
+
+  // Delete
+  const [deletingProduct, setDeletingProduct] =
+    useState<Product | null>(null);
+
+  const [isDeleteOpen, setIsDeleteOpen] =
+    useState(false);
 
   const handleAddProduct = (product: Product) => {
     setProducts((previous) => [...previous, product]);
@@ -44,7 +53,17 @@ export default function InventoryPage() {
   };
 
   const handleDeleteProduct = (product: Product) => {
-    console.log("Delete:", product);
+    setDeletingProduct(product);
+    setIsDeleteOpen(true);
+  };
+
+  const confirmDeleteProduct = (product: Product) => {
+    setProducts((previous) =>
+      previous.filter((p) => p.id !== product.id)
+    );
+  
+    setDeletingProduct(null);
+    setIsDeleteOpen(false);
   };
 
   const filteredProducts = useMemo(() => {
@@ -91,9 +110,7 @@ export default function InventoryPage() {
         </p>
 
         <div className="mt-8">
-          <InventoryStats
-            products={filteredProducts}
-          />
+          <InventoryStats products={filteredProducts} />
         </div>
 
         <InventoryToolbar
@@ -117,6 +134,13 @@ export default function InventoryPage() {
           onOpenChange={setIsEditOpen}
           product={editingProduct}
           onSave={handleSaveProduct}
+        />
+
+        <DeleteProductDialog
+          open={isDeleteOpen}
+          onOpenChange={setIsDeleteOpen}
+          product={deletingProduct}
+          onDelete={confirmDeleteProduct}
         />
       </div>
     </main>
