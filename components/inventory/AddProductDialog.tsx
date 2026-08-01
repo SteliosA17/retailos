@@ -50,6 +50,28 @@ export default function AddProductDialog({
   const [form, setForm] = useState(initialForm);
 
   const handleCreateProduct = () => {
+    if (
+      !form.sku.trim() ||
+      !form.name.trim() ||
+      !form.supplier.trim()
+    ) {
+      return;
+    }
+  
+    if (
+      Number(form.costPrice) <= 0 ||
+      Number(form.sellingPrice) <= 0
+    ) {
+      return;
+    }
+  
+    if (
+      Number(form.stock) < 0 ||
+      Number(form.minStock) < 0
+    ) {
+      return;
+    }
+  
     onAddProduct({
       id: Date.now(),
       sku: form.sku,
@@ -67,10 +89,19 @@ export default function AddProductDialog({
           ? "Low Stock"
           : "In Stock",
     });
-
+  
     setForm(initialForm);
     setOpen(false);
   };
+
+  const isFormValid =
+  form.sku.trim() !== "" &&
+  form.name.trim() !== "" &&
+  form.supplier.trim() !== "" &&
+  Number(form.costPrice) > 0 &&
+  Number(form.sellingPrice) > 0 &&
+  Number(form.stock) >= 0 &&
+  Number(form.minStock) >= 0;
 
   return (
     <Sheet
@@ -100,11 +131,14 @@ export default function AddProductDialog({
           setForm={setForm}
         />
 
-        <div className="mt-6 flex justify-end">
-          <Button onClick={handleCreateProduct}>
-            Create Product
-          </Button>
-        </div>
+<div className="mt-6 flex justify-end">
+  <Button
+    onClick={handleCreateProduct}
+    disabled={!isFormValid}
+  >
+    Create Product
+  </Button>
+</div>
       </SheetContent>
     </Sheet>
   );

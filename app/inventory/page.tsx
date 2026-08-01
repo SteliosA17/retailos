@@ -11,12 +11,25 @@ import InventoryToolbar from "@/components/inventory/InventoryToolbar";
 import EditProductDialog from "@/components/inventory/EditProductDialog";
 import DeleteProductDialog from "@/components/inventory/DeleteProductDialog";
 
+type SortColumn =
+  | "sku"
+  | "name"
+  | "stock"
+  | "sellingPrice";
+
 export default function InventoryPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [status, setStatus] = useState("All");
 
   const [products, setProducts] = useState<Product[]>(initialProducts);
+
+  // Sorting
+  const [sortBy, setSortBy] =
+    useState<SortColumn>("name");
+
+  const [sortDirection, setSortDirection] =
+    useState<"asc" | "desc">("asc");
 
   // Edit
   const [editingProduct, setEditingProduct] =
@@ -61,13 +74,24 @@ export default function InventoryPage() {
     setProducts((previous) =>
       previous.filter((p) => p.id !== product.id)
     );
-  
+
     setDeletingProduct(null);
     setIsDeleteOpen(false);
   };
 
+  const handleSort = (column: string) => {
+    if (column === sortBy) {
+      setSortDirection((previous) =>
+        previous === "asc" ? "desc" : "asc"
+      );
+    } else {
+      setSortBy(column as SortColumn);
+      setSortDirection("asc");
+    }
+  };
+
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    const filtered = products.filter((product) => {
       const matchesSearch =
         product.name
           .toLowerCase()
@@ -96,7 +120,43 @@ export default function InventoryPage() {
         matchesStatus
       );
     });
-  }, [products, search, category, status]);
+
+    filtered.sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortBy) {
+        case "sku":
+          comparison = a.sku.localeCompare(b.sku);
+          break;
+
+        case "name":
+          comparison = a.name.localeCompare(b.name);
+          break;
+
+        case "stock":
+          comparison = a.stock - b.stock;
+          break;
+
+        case "sellingPrice":
+          comparison =
+            a.sellingPrice - b.sellingPrice;
+          break;
+      }
+
+      return sortDirection === "asc"
+        ? comparison
+        : -comparison;
+    });
+
+    return filtered;
+  }, [
+    products,
+    search,
+    category,
+    status,
+    sortBy,
+    sortDirection,
+  ]);
 
   return (
     <main className="min-h-screen bg-zinc-950 p-8 text-white">
@@ -110,7 +170,9 @@ export default function InventoryPage() {
         </p>
 
         <div className="mt-8">
-          <InventoryStats products={filteredProducts} />
+          <InventoryStats
+            products={filteredProducts}
+          />
         </div>
 
         <InventoryToolbar
@@ -127,6 +189,8 @@ export default function InventoryPage() {
           products={filteredProducts}
           onEditProduct={handleEditProduct}
           onDeleteProduct={handleDeleteProduct}
+          sortBy={sortBy}
+          onSort={handleSort}
         />
 
         <EditProductDialog
