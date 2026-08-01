@@ -1,8 +1,8 @@
 "use client";
 
-import { Search, Plus } from "lucide-react";
+import { Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import AddProductDialog from "@/components/inventory/AddProductDialog";
 import { Input } from "@/components/ui/input";
 
 interface InventoryToolbarProps {
@@ -14,6 +14,18 @@ interface InventoryToolbarProps {
 
   status: string;
   onStatusChange: (value: string) => void;
+
+  onAddProduct: (product: {
+    id: number;
+    sku: string;
+    name: string;
+    category: string;
+    supplier: string;
+    costPrice: number;
+    sellingPrice: number;
+    stock: number;
+    minStock: number;
+  }) => void;
 }
 
 export default function InventoryToolbar({
@@ -23,6 +35,7 @@ export default function InventoryToolbar({
   onCategoryChange,
   status,
   onStatusChange,
+  onAddProduct,
 }: InventoryToolbarProps) {
   return (
     <div className="mt-8 mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -63,10 +76,7 @@ export default function InventoryToolbar({
         </select>
       </div>
 
-      <Button className="gap-2">
-        <Plus size={18} />
-        Add Product
-      </Button>
+      <AddProductDialog onAddProduct={onAddProduct} />
     </div>
   );
 }
