@@ -1,3 +1,38 @@
+import StatCard from "@/components/dashboard/StatCard";
+import {
+  DollarSign,
+  ShoppingCart,
+  Package,
+  TrendingUp,
+} from "lucide-react";
+
+const stats = [
+    {
+      title: "Today's Sales",
+      value: "£0.00",
+      subtitle: "No sales yet",
+      icon: DollarSign,
+    },
+    {
+      title: "Orders",
+      value: "0",
+      subtitle: "No orders yet",
+      icon: ShoppingCart,
+    },
+    {
+      title: "Low Stock",
+      value: "0",
+      subtitle: "Everything looks good",
+      icon: Package,
+    },
+    {
+      title: "Profit",
+      value: "£0.00",
+      subtitle: "No data yet",
+      icon: TrendingUp,
+    },
+  ];
+
 export default function DashboardPage() {
     return (
       <main className="min-h-screen bg-zinc-950 text-white p-8">
@@ -8,27 +43,22 @@ export default function DashboardPage() {
           </p>
   
           <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <p className="text-sm text-zinc-400">Revenue</p>
-              <h2 className="mt-2 text-3xl font-bold">£24,580</h2>
-            </div>
-  
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <p className="text-sm text-zinc-400">Orders</p>
-              <h2 className="mt-2 text-3xl font-bold">142</h2>
-            </div>
-  
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <p className="text-sm text-zinc-400">Customers</p>
-              <h2 className="mt-2 text-3xl font-bold">1,284</h2>
-            </div>
-  
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <p className="text-sm text-zinc-400">Low Stock</p>
-              <h2 className="mt-2 text-3xl font-bold">7</h2>
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  {stats.map((stat) => (
+    <StatCard
+      key={stat.title}
+      title={stat.title}
+      value={stat.value}
+      subtitle={stat.subtitle}
+      icon={<stat.icon className="h-5 w-5" />}
+    />
+  ))}
+</div>
+
+</div>
+</main>
+
+);
+}
+
+
+
