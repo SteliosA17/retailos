@@ -8,6 +8,7 @@ import { products as initialProducts } from "@/lib/mock-data";
 import InventoryStats from "@/components/inventory/InventoryStats";
 import InventoryTable from "@/components/inventory/InventoryTable";
 import InventoryToolbar from "@/components/inventory/InventoryToolbar";
+import EditProductDialog from "@/components/inventory/EditProductDialog";
 
 export default function InventoryPage() {
   const [search, setSearch] = useState("");
@@ -16,20 +17,30 @@ export default function InventoryPage() {
 
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
-  // Create dialog
-  const handleAddProduct = (product: Product) => {
-    setProducts((previous) => [...previous, product]);
-  };
-
-  // Edit state
   const [editingProduct, setEditingProduct] =
     useState<Product | null>(null);
 
   const [isEditOpen, setIsEditOpen] = useState(false);
 
+  const handleAddProduct = (product: Product) => {
+    setProducts((previous) => [...previous, product]);
+  };
+
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
     setIsEditOpen(true);
+  };
+
+  const handleSaveProduct = (updatedProduct: Product) => {
+    setProducts((previous) =>
+      previous.map((product) =>
+        product.id === updatedProduct.id
+          ? updatedProduct
+          : product
+      )
+    );
+
+    setEditingProduct(updatedProduct);
   };
 
   const handleDeleteProduct = (product: Product) => {
@@ -39,8 +50,12 @@ export default function InventoryPage() {
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch =
-        product.name.toLowerCase().includes(search.toLowerCase()) ||
-        product.sku.toLowerCase().includes(search.toLowerCase());
+        product.name
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        product.sku
+          .toLowerCase()
+          .includes(search.toLowerCase());
 
       const matchesCategory =
         category === "All" ||
@@ -97,15 +112,12 @@ export default function InventoryPage() {
           onDeleteProduct={handleDeleteProduct}
         />
 
-        {/* Temporary debug */}
-        {isEditOpen && editingProduct && (
-          <div className="mt-6 rounded-lg border border-blue-500 bg-blue-500/10 p-4">
-            Editing:
-            <strong className="ml-2">
-              {editingProduct.name}
-            </strong>
-          </div>
-        )}
+        <EditProductDialog
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+          product={editingProduct}
+          onSave={handleSaveProduct}
+        />
       </div>
     </main>
   );

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Product } from "@/lib/types";
 
 import ProductForm from "@/components/inventory/ProductForm";
 
@@ -13,22 +14,13 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 
-interface AddProductDialogProps {
-  onAddProduct: (product: {
-    id: number;
-    sku: string;
-    name: string;
-    category: string;
-    supplier: string;
-    costPrice: number;
-    sellingPrice: number;
-    stock: number;
-    minStock: number;
-    status: string;
-  }) => void;
+interface EditProductDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  product: Product | null;
+  onSave: (product: Product) => void;
 }
 
 const initialForm = {
@@ -42,16 +34,34 @@ const initialForm = {
   minStock: "",
 };
 
-export default function AddProductDialog({
-  onAddProduct,
-}: AddProductDialogProps) {
-  const [open, setOpen] = useState(false);
-
+export default function EditProductDialog({
+  open,
+  onOpenChange,
+  product,
+  onSave,
+}: EditProductDialogProps) {
   const [form, setForm] = useState(initialForm);
 
-  const handleCreateProduct = () => {
-    onAddProduct({
-      id: Date.now(),
+  useEffect(() => {
+    if (!product) return;
+
+    setForm({
+      sku: product.sku,
+      name: product.name,
+      category: product.category,
+      supplier: product.supplier,
+      costPrice: product.costPrice.toString(),
+      sellingPrice: product.sellingPrice.toString(),
+      stock: product.stock.toString(),
+      minStock: product.minStock.toString(),
+    });
+  }, [product]);
+
+  const handleSave = () => {
+    if (!product) return;
+
+    onSave({
+      ...product,
       sku: form.sku,
       name: form.name,
       category: form.category,
@@ -68,30 +78,17 @@ export default function AddProductDialog({
           : "In Stock",
     });
 
-    setForm(initialForm);
-    setOpen(false);
+    onOpenChange(false);
   };
 
   return (
-    <Sheet
-      open={open}
-      onOpenChange={setOpen}
-    >
-      <SheetTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Product
-        </Button>
-      </SheetTrigger>
-
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-[420px] overflow-y-auto border-zinc-800 bg-zinc-950 text-white">
         <SheetHeader>
-          <SheetTitle>
-            Add Product
-          </SheetTitle>
+          <SheetTitle>Edit Product</SheetTitle>
 
           <SheetDescription>
-            Create a new inventory item.
+            Update the selected product.
           </SheetDescription>
         </SheetHeader>
 
@@ -101,8 +98,8 @@ export default function AddProductDialog({
         />
 
         <div className="mt-6 flex justify-end">
-          <Button onClick={handleCreateProduct}>
-            Create Product
+          <Button onClick={handleSave}>
+            Save Changes
           </Button>
         </div>
       </SheetContent>
